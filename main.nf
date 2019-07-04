@@ -1,24 +1,17 @@
-params.reads = "$baseDir/data/ggal/ggal_gut_{1,2}.fq"
-sequences = file(params.reads) 
+params.genome = "$baseDir/data/ggal/ggal_1_48850000_49020000.Ggal71.500bpflank.fa"
+   
+genome_file = file(params.genome)
 
-/*
- * Step 1. Print each record
- */
-process printSequences {
- 
+process buildIndex {
+    publishDir "results"
+
     input:
-    file 'input.fq' from sequences
- 
+    file genome from genome_file
+      
     output:
-    stdout result
- 
+    file 'genome.index*' into genome_index
+        
     """
-    awk '{if(NR%4==2) print \$0}' input.fq
+    bowtie2-build ${genome} genome.index
     """
- 
 }
-
-/*
- * print the channel content
- */
-result.subscribe { println it }
